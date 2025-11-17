@@ -1,0 +1,20 @@
+```
+# Dependencies
+node_modules/
+
+# Build outputs
+.expo/
+dist/
+build/
+
+# Config files
+babel.config.js
+metro.config.js
+
+# Environment
+.env
+.env.*
+
+# Tests
+coverage/
+```
