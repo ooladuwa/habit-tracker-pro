@@ -5,10 +5,13 @@ import { analytics } from '../config/firebaseConfig';
  * Track an analytics event
  * Logs to console in development, sends to Firebase in production
  */
-export const trackEvent = (eventName: string, params?: Record<string, any>) => {
+export const trackEvent = (
+  eventName: string,
+  params?: Record<string, string | number | boolean>
+) => {
   // Always log to console in development
   if (__DEV__) {
-    console.log(`📊 Analytics: ${eventName}`, params || '');
+    console.warn(`📊 Analytics: ${eventName}`, params || '');
   }
 
   // Send to Firebase Analytics if available
