@@ -32,7 +32,7 @@ A production-ready habit tracking mobile app built with React Native and Firebas
 1. Clone the repository:
 
 ```bash
-   git clone https://github.com/YOUR_USERNAME/habit-tracker-pro.git
+   git clone https://github.com/ooladuwa/habit-tracker-pro.git
    cd habit-tracker-pro
 ```
 
