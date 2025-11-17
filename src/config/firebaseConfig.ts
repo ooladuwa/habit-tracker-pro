@@ -49,3 +49,9 @@ isSupported().then((supported) => {
 
 export { analytics };
 export default app;
+
+console.log('🔧 Firebase Config Check:');
+console.log('  App initialized:', !!app);
+console.log('  Auth initialized:', !!auth);
+console.log('  Project ID:', firebaseConfig.projectId);
+console.log('  Auth domain:', firebaseConfig.authDomain);

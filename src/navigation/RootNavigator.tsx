@@ -13,7 +13,6 @@ import SignUpScreen from '../screens/SignUpScreen';
 import HomeScreen from '../screens/HomeScreen';
 
 import { AuthStackParamList, AppStackParamList } from '../types';
-import { colors } from '../constants/colors';
 
 const AuthStack = createStackNavigator<AuthStackParamList>();
 const AppStack = createStackNavigator<AppStackParamList>();
@@ -50,11 +49,20 @@ const AppNavigator = () => {
 
 export const RootNavigator = () => {
   const { user, loading } = useAuth();
+  const [initializing, setInitializing] = React.useState(true);
 
-  if (loading) {
+  // Only show loading on initial mount
+  React.useEffect(() => {
+    if (!loading) {
+      setInitializing(false);
+    }
+  }, [loading]);
+
+  // Only show loading screen on first load
+  if (initializing && loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.black} />
+        <ActivityIndicator size="large" />
       </View>
     );
   }

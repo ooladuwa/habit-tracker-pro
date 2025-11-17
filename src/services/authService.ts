@@ -25,14 +25,21 @@ class AuthService {
    * Create a new user with email and password
    */
   async signUp(email: string, password: string): Promise<User> {
+    console.log('🔵 SignUp called with email:', email);
+    console.log('🔵 Auth instance exists:', !!this.auth);
+    console.log('🔵 Auth app name:', this.auth?.app?.name);
+
     try {
+      console.log('🔵 Calling createUserWithEmailAndPassword...');
       const userCredential = await createUserWithEmailAndPassword(
         this.auth,
         email,
         password
       );
+      console.log('✅ User created successfully!');
       return this.mapFirebaseUser(userCredential.user);
     } catch (error: unknown) {
+      console.log('❌ SignUp failed with error:', error);
       throw this.handleAuthError(error);
     }
   }
