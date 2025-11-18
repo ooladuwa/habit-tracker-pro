@@ -9,7 +9,6 @@ import {
 import { Text, TextInput, Button, HelperText } from 'react-native-paper';
 import { useAuth } from '../hooks/useAuth';
 import { trackEvent } from '../utils/analytics';
-import { FIREBASE_API_KEY } from '@env';
 
 const SignUpScreen = () => {
   const [email, setEmail] = useState('');
