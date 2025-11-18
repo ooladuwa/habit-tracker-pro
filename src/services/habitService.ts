@@ -285,8 +285,9 @@ export const toggleHabitCompletion = async (
  * Subscribe to real-time habit updates
  * @param userId The user's ID
  * @param onUpdate The callback to call when the habit is updated
+ * @returns An unsubscribe function to stop listening
  */
-export const subscribeToHabits = async (
+export const subscribeToHabits = (
   userId: string,
   onUpdate: (habits: Habit[]) => void
 ) => {
