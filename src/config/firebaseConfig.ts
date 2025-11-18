@@ -12,6 +12,7 @@ import {
   FIREBASE_MEASUREMENT_ID,
 } from '@env';
 
+// Firebase configuration from environment variables
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
@@ -32,11 +33,13 @@ if (!FIREBASE_API_KEY || !FIREBASE_PROJECT_ID) {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Services
+// Initialize Auth (automatically uses AsyncStorage for persistence in React Native)
 export const auth = getAuth(app);
+
+// Initialize Firestore
 export const db = getFirestore(app);
 
-// Initialize Analytics
+// Initialize Analytics (only if supported - web only)
 let analytics: Analytics | undefined;
 isSupported().then((supported) => {
   if (supported) {
@@ -46,3 +49,9 @@ isSupported().then((supported) => {
 
 export { analytics };
 export default app;
+
+console.log('🔧 Firebase Config Check:');
+console.log('  App initialized:', !!app);
+console.log('  Auth initialized:', !!auth);
+console.log('  Project ID:', firebaseConfig.projectId);
+console.log('  Auth domain:', firebaseConfig.authDomain);
