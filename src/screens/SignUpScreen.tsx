@@ -79,29 +79,6 @@ const SignUpScreen = () => {
 
   const displayError = localError || error;
 
-  const testFirebase = async () => {
-    try {
-      console.log('🧪 Testing Firebase Auth endpoint...');
-      const response = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: 'test@test.com',
-            password: 'password',
-            returnSecureToken: true,
-          }),
-        }
-      );
-      console.log('✅ Firebase API reachable! Status:', response.status);
-      const data = await response.json();
-      console.log('Response:', data);
-    } catch (error) {
-      console.log('❌ Cannot reach Firebase:', error);
-    }
-  };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -186,9 +163,6 @@ const SignUpScreen = () => {
             style={styles.button}
           >
             Create Account
-          </Button>
-          <Button onPress={testFirebase} mode="outlined">
-            Test Firebase API
           </Button>
         </View>
       </ScrollView>
