@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 /**
  *  User
  * @description Interface for the User object.
@@ -61,8 +63,8 @@ export interface Habit {
   title: string;
   description?: string;
   frequency: 'daily' | 'weekly' | 'monthly';
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   completedDates: string[];
   color?: string;
   icon?: string;
@@ -83,14 +85,15 @@ export interface HabitInput {
 /**
  * Firestore document data (how it's stored in Firebase)
  * @description The data that is stored in Firebase with timestamps.
+ * Timestamps can be Firestore Timestamp objects or ISO strings.
  */
 export interface HabitDocument {
   userId: string;
   title: string;
   description?: string;
   frequency: 'daily' | 'weekly' | 'monthly';
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Timestamp | string;
+  updatedAt: Timestamp | string;
   completedDates: string[];
   color?: string;
   icon?: string;
