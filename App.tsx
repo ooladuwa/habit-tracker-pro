@@ -3,13 +3,16 @@ import { StatusBar } from 'expo-status-bar';
 import { PaperProvider } from 'react-native-paper';
 import { AuthProvider } from './src/hooks/useAuth';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { HabitsProvider } from './src/hooks/useHabits';
 
 export default function App() {
   return (
     <PaperProvider>
       <AuthProvider>
-        <RootNavigator />
-        <StatusBar style="auto" />
+        <HabitsProvider>
+          <RootNavigator />
+          <StatusBar style="auto" />
+        </HabitsProvider>
       </AuthProvider>
     </PaperProvider>
   );

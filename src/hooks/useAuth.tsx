@@ -14,7 +14,7 @@ interface AuthProviderProps {
 
 /**
  * Auth Provider Component
- * Wrap your app with this to provide auth state
+ * Wrap app with this to provide auth state
  */
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
