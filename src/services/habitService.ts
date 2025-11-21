@@ -261,12 +261,12 @@ export const toggleHabitCompletion = async (
     const habitData = snapshot.docs[0].data() as HabitDocument;
     const completedDates = habitData.completedDates || [];
 
-    // Toggle: remove if exists, add if it doesn't
-    const dateIndex = completedDates.indexOf(date);
-    const newCompletedDates =
-      dateIndex < 0
-        ? completedDates.filter((d) => d !== date)
-        : [...completedDates, date];
+    // Check if date already exists
+    const isCompleted = completedDates.includes(date);
+
+    const newCompletedDates = isCompleted
+      ? completedDates.filter((d) => d !== date) // Remove if completed
+      : [...completedDates, date]; // Add if not completed
 
     await updateDoc(habitRef, {
       completedDates: newCompletedDates,

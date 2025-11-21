@@ -178,6 +178,9 @@ export function HabitsProvider({ children }: HabitsProviderProps) {
           return { ...habit, completedDates: newCompletedDates };
         })
       );
+
+      // Call the Firebase service to toggle habit completion
+      await habitService.toggleHabitCompletion(user.uid, id, date);
     } catch (err: unknown) {
       const message =
         err instanceof Error
