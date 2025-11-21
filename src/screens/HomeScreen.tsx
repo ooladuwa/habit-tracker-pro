@@ -12,8 +12,14 @@ import { useAuth } from '../hooks/useAuth';
 import { useHabits } from '../hooks/useHabits';
 import { Habit } from '../types';
 import { colors } from '../constants/colors';
+import { AppStackParamList } from '../types';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+
+type HomeScreenNavigationProp = StackNavigationProp<AppStackParamList, 'Home'>;
 
 export default function HomeScreen() {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const { user, signOut, loading: authLoading } = useAuth();
   const {
     habits,
@@ -145,8 +151,7 @@ export default function HomeScreen() {
         icon="plus"
         style={styles.fab}
         onPress={() => {
-          // TODO: Navigate to AddHabit screen (Day 4)
-          console.log('Navigate to Add Habit screen');
+          navigation.navigate('AddHabit');
         }}
       />
     </View>

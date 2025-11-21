@@ -11,6 +11,7 @@ import SignUpScreen from '../screens/SignUpScreen';
 
 // App Screens
 import HomeScreen from '../screens/HomeScreen';
+import AddHabit from '../screens/AddHabit';
 
 import { AuthStackParamList, AppStackParamList } from '../types';
 
@@ -42,6 +43,11 @@ const AppNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{ headerTitle: 'Habit Tracker Pro' }}
+      />
+      <AppStack.Screen
+        name="AddHabit"
+        component={AddHabit}
+        options={{ headerTitle: 'Create Habit' }}
       />
     </AppStack.Navigator>
   );
