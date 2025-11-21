@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getFirestore } from 'firebase/firestore';
 import { getAnalytics, isSupported, type Analytics } from 'firebase/analytics';
 import {
@@ -33,8 +34,10 @@ if (!FIREBASE_API_KEY || !FIREBASE_PROJECT_ID) {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Auth (automatically uses AsyncStorage for persistence in React Native)
-export const auth = getAuth(app);
+// Initialize Auth (uses AsyncStorage for persistence in React Native)
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
 
 // Initialize Firestore
 export const db = getFirestore(app);
