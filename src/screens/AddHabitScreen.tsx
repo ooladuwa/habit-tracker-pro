@@ -124,15 +124,16 @@ const AddHabit = () => {
                 value: 'daily',
                 label: 'Daily',
                 icon: 'calendar-today',
+                disabled: loading,
               },
               {
                 value: 'weekly',
                 label: 'Weekly',
                 icon: 'calendar-week',
+                disabled: loading,
               },
             ]}
             style={styles.segmented}
-            // disabled={loading}
           />
 
           {displayError ? (

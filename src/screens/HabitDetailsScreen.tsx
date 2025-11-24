@@ -44,13 +44,14 @@ const HabitDetailsScreen = () => {
   const [updating, setUpdating] = useState(false);
 
   // Initialize the form with the habit data
+  // Only update when not editing to prevent data loss during active editing
   useEffect(() => {
-    if (habit) {
+    if (habit && !isEditing) {
       setTitle(habit.title);
       setDescription(habit.description || '');
       setFrequency(habit.frequency);
     }
-  }, [habit]);
+  }, [habit, isEditing]);
 
   const streak = habit
     ? calculateStreak(habit.completedDates, habit.frequency)
