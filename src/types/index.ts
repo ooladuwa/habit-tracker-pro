@@ -62,7 +62,7 @@ export interface Habit {
   userId: string;
   title: string;
   description?: string;
-  frequency: 'daily' | 'weekly' | 'monthly';
+  frequency: 'daily' | 'weekly';
   createdAt: string | Date;
   updatedAt: string | Date;
   completedDates: string[];
@@ -77,7 +77,7 @@ export interface Habit {
 export interface HabitInput {
   title: string;
   description?: string;
-  frequency: 'daily' | 'weekly' | 'monthly';
+  frequency: 'daily' | 'weekly';
   color?: string;
   icon?: string;
 }
@@ -91,7 +91,7 @@ export interface HabitDocument {
   userId: string;
   title: string;
   description?: string;
-  frequency: 'daily' | 'weekly' | 'monthly';
+  frequency: 'daily' | 'weekly';
   createdAt: Timestamp | string;
   updatedAt: Timestamp | string;
   completedDates: string[];

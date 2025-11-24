@@ -25,7 +25,7 @@ export const calculateStreak = (
   if (completedDates.length === 0) return 0;
 
   // sort completed dates in descending order
-  const sortedDates = completedDates.toSorted((a, b) => b.localeCompare(a));
+  const sortedDates = [...completedDates].sort((a, b) => b.localeCompare(a));
 
   // Initialize streak counter
   let streak = 0;

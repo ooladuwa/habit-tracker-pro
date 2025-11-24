@@ -79,8 +79,8 @@ export function HabitsProvider({ children }: HabitsProviderProps) {
       setError(null);
       const habit = await habitService.createHabit(user.uid, input);
 
-      // optimistic update to the UI by adding the new habit to the list
-      setHabits((prev) => [habit, ...prev]);
+      // Don't do optimistic update - the real-time subscription will handle it
+      // This prevents duplicate habits in the list
 
       return habit;
     } catch (err: unknown) {

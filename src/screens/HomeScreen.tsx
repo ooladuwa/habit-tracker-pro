@@ -7,6 +7,7 @@ import {
   IconButton,
   FAB,
   ActivityIndicator,
+  Chip,
 } from 'react-native-paper';
 import { useAuth } from '../hooks/useAuth';
 import { useHabits } from '../hooks/useHabits';
@@ -15,6 +16,12 @@ import { colors } from '../constants/colors';
 import { AppStackParamList } from '../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
+import {
+  calculateStreak,
+  isCompletedToday,
+  formatStreak,
+} from '../utils/streakCalculator';
+import { getTodayString } from '../utils/dateHelpers';
 
 type HomeScreenNavigationProp = StackNavigationProp<AppStackParamList, 'Home'>;
 
@@ -30,8 +37,8 @@ export default function HomeScreen() {
     toggleCompletion,
   } = useHabits();
 
-  // get today's date in YYYY-MM-DD format
-  const today = new Date().toISOString().split('T')[0];
+  // get today's date
+  const today = getTodayString();
 
   const handleToggleCompletion = async (habitId: string) => {
     try {
@@ -50,31 +57,52 @@ export default function HomeScreen() {
   };
 
   const renderHabitItem = ({ item }: { item: Habit }) => {
-    const isCompletedToday = item.completedDates.includes(today);
+    const isCompleted = isCompletedToday(item.completedDates);
+    const streak = calculateStreak(item.completedDates, item.frequency);
 
     return (
-      <Card style={styles.card} mode="elevated">
+      <Card
+        style={styles.card}
+        mode="elevated"
+        onPress={() => navigation.navigate('HabitDetail', { habitId: item.id })}
+      >
         <Card.Content>
           <View style={styles.habitHeader}>
             <View style={styles.habitInfo}>
-              <Text variant="titleMedium">{item.title}</Text>
+              <View style={styles.titleRow}>
+                <Text variant="titleMedium">{item.title}</Text>
+                {streak > 0 && (
+                  <Chip
+                    mode="flat"
+                    style={styles.badge}
+                    textStyle={styles.badgeText}
+                  >
+                    🔥 {streak}
+                  </Chip>
+                )}
+              </View>
               {item.description ? (
                 <Text variant="bodySmall" style={styles.description}>
                   {item.description}
                 </Text>
               ) : null}
-              <Text variant="bodySmall" style={styles.frequency}>
-                {item.frequency === 'daily' ? '📅 Daily' : '📆 Weekly'}
-              </Text>
+              <View style={styles.metaRow}>
+                <Text variant="bodySmall" style={styles.frequency}>
+                  {item.frequency === 'daily' ? '📅 Daily' : '📆 Weekly'}
+                </Text>
+                {streak > 0 && (
+                  <Text variant="bodySmall" style={styles.streakText}>
+                    Streak: {formatStreak(streak, item.frequency)}
+                  </Text>
+                )}
+              </View>
             </View>
 
             <View style={styles.actions}>
               <IconButton
-                icon={isCompletedToday ? 'check-circle' : 'circle-outline'}
+                icon={isCompleted ? 'check-circle' : 'circle-outline'}
                 size={32}
-                iconColor={
-                  isCompletedToday ? colors.completed : colors.incomplete
-                }
+                iconColor={isCompleted ? colors.completed : colors.incomplete}
                 onPress={() => handleToggleCompletion(item.id)}
               />
               <IconButton
@@ -209,13 +237,35 @@ const styles = StyleSheet.create({
   habitInfo: {
     flex: 1,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  badge: {
+    backgroundColor: colors.orange,
+  },
+  badgeText: {
+    color: colors.white,
+    fontSize: 12,
+  },
   description: {
     marginTop: 4,
     opacity: 0.7,
   },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 16,
+  },
   frequency: {
     marginTop: 8,
     opacity: 0.6,
+  },
+  streakText: {
+    color: colors.orange,
+    fontWeight: '600',
   },
   actions: {
     flexDirection: 'row',
