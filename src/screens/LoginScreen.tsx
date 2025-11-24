@@ -46,8 +46,8 @@ const LoginScreen = () => {
       trackEvent('user_login', { method: 'email' });
     } catch (err) {
       // Error is handled by the useAuth hook
-      //console.error('Login error:', err);
-      console.log('❌ SignIn error caught:', err.message);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.log('❌ SignIn error caught:', errorMessage);
       console.log('❌ After error - user:', user);
     }
   };

@@ -127,30 +127,45 @@ export const createHabit = async (
   try {
     const habitsRef = getUserHabitsCollection(userId);
 
-    // Create habit data object without timestamps
-    const habitData: Omit<HabitDocument, 'createdAt' | 'updatedAt'> = {
+    // Create habit data object - only include optional fields if they're defined
+    // Firestore doesn't allow undefined values, so we must omit them entirely
+    const habitData: Omit<HabitDocument, 'createdAt' | 'updatedAt'> & {
+      createdAt: ReturnType<typeof serverTimestamp>;
+      updatedAt: ReturnType<typeof serverTimestamp>;
+    } = {
       userId,
       title: input.title.trim(),
       description: input.description?.trim() || '',
       frequency: input.frequency,
       completedDates: [],
-      color: input.color,
-      icon: input.icon,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     };
 
-    const docRef = await addDoc(habitsRef, {
-      ...habitData,
-      createdAt: serverTimestamp(), // Add timestamps to the habit data
-      updatedAt: serverTimestamp(), // timestamp is a placeholder for the current time
-    });
+    // Only include color and icon if they are defined (Firestore doesn't allow undefined)
+    if (input.color !== undefined) {
+      habitData.color = input.color;
+    }
+    if (input.icon !== undefined) {
+      habitData.icon = input.icon;
+    }
+
+    const docRef = await addDoc(habitsRef, habitData);
 
     // return the created habit
-    return {
+    const createdHabit: Habit = {
       id: docRef.id,
-      ...habitData,
+      userId: habitData.userId,
+      title: habitData.title,
+      description: habitData.description || '',
+      frequency: habitData.frequency,
+      completedDates: habitData.completedDates,
       createdAt: new Date(), // date comes from the user's device
       updatedAt: new Date(), // date changes milliseconds later when the habit is updated with the server timestamp
+      ...(habitData.color !== undefined && { color: habitData.color }),
+      ...(habitData.icon !== undefined && { icon: habitData.icon }),
     };
+    return createdHabit;
   } catch (error: unknown) {
     // If an error occurs, throw it wrapped in our custom error
     console.error('❌ Error creating habit:', error);
@@ -261,12 +276,12 @@ export const toggleHabitCompletion = async (
     const habitData = snapshot.docs[0].data() as HabitDocument;
     const completedDates = habitData.completedDates || [];
 
-    // Toggle: remove if exists, add if it doesn't
-    const dateIndex = completedDates.indexOf(date);
-    const newCompletedDates =
-      dateIndex < 0
-        ? completedDates.filter((d) => d !== date)
-        : [...completedDates, date];
+    // Check if date already exists
+    const isCompleted = completedDates.includes(date);
+
+    const newCompletedDates = isCompleted
+      ? completedDates.filter((d) => d !== date) // Remove if completed
+      : [...completedDates, date]; // Add if not completed
 
     await updateDoc(habitRef, {
       completedDates: newCompletedDates,

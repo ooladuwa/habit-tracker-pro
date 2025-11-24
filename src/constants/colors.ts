@@ -9,4 +9,5 @@ export const colors = {
   error: '#c62828',
   mediumGray: '#ffebee',
   mediumRed: '#f44336',
+  orange: '#FF6B35',
 };
