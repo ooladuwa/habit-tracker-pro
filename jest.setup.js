@@ -2,6 +2,12 @@
 // Extend Jest matchers with jest-native
 import '@testing-library/jest-native/extend-expect';
 
+// Mock the import.meta registry
+global.__ExpoImportMetaRegistry = {
+  register: jest.fn(),
+  resolve: jest.fn(() => ({})),
+};
+
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
