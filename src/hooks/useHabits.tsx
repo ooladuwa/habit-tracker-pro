@@ -46,7 +46,7 @@ export function HabitsProvider({ children }: HabitsProviderProps) {
     return () => {
       unsubscribe();
     };
-  }, [user]);
+  }, [user?.uid]);
 
   /**
    * Manually refresh habits from server
