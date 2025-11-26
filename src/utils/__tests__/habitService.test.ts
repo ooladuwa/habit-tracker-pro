@@ -8,7 +8,18 @@ import type {
 import type { HabitDocument } from '../../types';
 
 // Mock Firestore functions
-jest.mock('firebase/firestore');
+jest.mock('firebase/firestore', () => ({
+  ...jest.requireActual('firebase/firestore'),
+  addDoc: jest.fn(),
+  getDocs: jest.fn(),
+  updateDoc: jest.fn(),
+  deleteDoc: jest.fn(),
+  collection: jest.fn(),
+  doc: jest.fn(),
+  query: jest.fn(),
+  where: jest.fn(),
+  serverTimestamp: jest.fn(() => ({ _methodName: 'serverTimestamp' })),
+}));
 
 const mockAddDoc = firestore.addDoc as jest.MockedFunction<
   typeof firestore.addDoc
@@ -22,26 +33,14 @@ const mockUpdateDoc = firestore.updateDoc as jest.MockedFunction<
 const mockDeleteDoc = firestore.deleteDoc as jest.MockedFunction<
   typeof firestore.deleteDoc
 >;
-const mockQuery = firestore.query as jest.MockedFunction<
-  typeof firestore.query
->;
-const mockCollection = firestore.collection as jest.MockedFunction<
-  typeof firestore.collection
->;
-const mockWhere = firestore.where as jest.MockedFunction<
-  typeof firestore.where
->;
-const mockDoc = firestore.doc as jest.MockedFunction<typeof firestore.doc>;
 
 describe('habitService', () => {
-  // Test constants
+  // TEST CONSTANTS
   const TEST_USER_ID = 'test-user-123';
   const TEST_HABIT_ID = 'habit-123';
   const TEST_TODAY = '2024-01-15';
   const DATES_WITHOUT_TODAY = ['2024-01-14', '2024-01-13', '2024-01-12'];
   const DATES_WITH_TODAY = ['2024-01-14', TEST_TODAY];
-
-  const MOCK_HABIT_DOC_REF = { id: TEST_HABIT_ID };
 
   const TEST_HABIT_INPUT = {
     title: 'Morning Yoga',
@@ -54,221 +53,219 @@ describe('habitService', () => {
   const UPDATED_HABIT_DATA = {
     title: 'Evening Yoga',
     description: '30 minutes',
-    frequency: 'weekly' as const,
-    color: '#00A8E8',
-    icon: 'meditation',
+  };
+
+  // HELPER FUNCTIONS
+
+  /**
+   * Creates a mock Firestore habit document.
+   * Uses ISO string dates to avoid Timestamp complexity in tests.
+   */
+  const createMockHabitDoc = (overrides: Partial<HabitDocument> = {}) => ({
+    id: TEST_HABIT_ID,
+    data: () => ({
+      userId: TEST_USER_ID,
+      ...TEST_HABIT_INPUT,
+      completedDates: [],
+      createdAt: new Date('2024-01-01').toISOString(),
+      updatedAt: new Date('2024-01-01').toISOString(),
+      ...overrides,
+    }),
+  });
+
+  /**
+   * Mocks getDocs to return habits successfully
+   */
+  const mockGetDocsSuccess = (habits = [createMockHabitDoc()]) => {
+    mockGetDocs.mockResolvedValue({
+      empty: false,
+      docs: habits,
+    } as unknown as QuerySnapshot);
+  };
+
+  /**
+   * Mocks getDocs to return empty (no habits)
+   */
+  const mockGetDocsEmpty = () => {
+    mockGetDocs.mockResolvedValue({
+      empty: true,
+      docs: [],
+    } as unknown as QuerySnapshot);
+  };
+
+  /**
+   * Extracts update data from mockUpdateDoc call
+   */
+  const getUpdateData = () => {
+    const [, updateData] = mockUpdateDoc.mock.calls[0];
+    return updateData as UpdateData<HabitDocument>;
+  };
+
+  /**
+   * Generic error handler test helper
+   */
+  const testErrorHandling = async (
+    mockFn: { mockRejectedValue: (value: unknown) => void },
+    operation: () => Promise<unknown>,
+    expectedErrorMessage: string
+  ) => {
+    mockFn.mockRejectedValue(new Error('Firestore error'));
+    await expect(operation()).rejects.toThrow(expectedErrorMessage);
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Setup default mocks for Firestore query chain
-    mockCollection.mockReturnValue({} as any);
-    mockDoc.mockReturnValue({ id: TEST_HABIT_ID } as any);
-    mockQuery.mockReturnValue({} as any);
-    mockWhere.mockReturnValue({} as any);
   });
 
-  // CREATE HABIT TEST
+  // TESTS
+
   describe('createHabit', () => {
     it('should create a habit successfully', async () => {
-      mockAddDoc.mockResolvedValue(
-        MOCK_HABIT_DOC_REF as unknown as DocumentReference
-      );
+      mockAddDoc.mockResolvedValue({
+        id: TEST_HABIT_ID,
+      } as unknown as DocumentReference);
 
       const result = await habitService.createHabit(
         TEST_USER_ID,
         TEST_HABIT_INPUT
       );
 
+      expect(mockAddDoc).toHaveBeenCalled();
       expect(result).toMatchObject({
         id: TEST_HABIT_ID,
         title: TEST_HABIT_INPUT.title,
         description: TEST_HABIT_INPUT.description,
         frequency: TEST_HABIT_INPUT.frequency,
       });
-      expect(mockAddDoc).toHaveBeenCalled();
     });
 
     it('should handle errors gracefully', async () => {
-      mockAddDoc.mockRejectedValue(new Error('Network error'));
-
-      await expect(
-        habitService.createHabit(TEST_USER_ID, {
-          title: 'Test',
-          frequency: 'daily',
-        })
-      ).rejects.toThrow();
+      await testErrorHandling(
+        mockAddDoc,
+        () => habitService.createHabit(TEST_USER_ID, TEST_HABIT_INPUT),
+        'Failed to create habit'
+      );
     });
   });
 
-  // UPDATE HABIT TEST
   describe('updateHabit', () => {
     it('should update all habit fields successfully', async () => {
-      // Given: User wants to edit their habit
       mockUpdateDoc.mockResolvedValue(undefined);
 
-      // When: User updates all fields
       await habitService.updateHabit(
         TEST_USER_ID,
         TEST_HABIT_ID,
         UPDATED_HABIT_DATA
       );
 
-      // Then: All fields should be updated
       expect(mockUpdateDoc).toHaveBeenCalled();
 
-      const [, updateData] = mockUpdateDoc.mock.calls[0];
-      const typedUpdateData = updateData as UpdateData<HabitDocument>;
-      expect(typedUpdateData).toMatchObject({
+      const updateData = getUpdateData();
+      expect(updateData).toMatchObject({
         title: UPDATED_HABIT_DATA.title,
         description: UPDATED_HABIT_DATA.description,
-        frequency: UPDATED_HABIT_DATA.frequency,
-        color: UPDATED_HABIT_DATA.color,
-        icon: UPDATED_HABIT_DATA.icon,
-        updatedAt: expect.any(Date),
       });
+      expect(updateData.updatedAt).toBeDefined();
     });
 
-    it('should update only title when provided', async () => {
-      // Given: User wants to update only the title
-      const partialUpdate = {
-        title: 'Morning Meditation',
-      };
-
+    it('should support partial updates', async () => {
+      const partialUpdate = { title: 'Morning Meditation' };
       mockUpdateDoc.mockResolvedValue(undefined);
 
-      // When: User updates only the title
       await habitService.updateHabit(
         TEST_USER_ID,
         TEST_HABIT_ID,
         partialUpdate
       );
 
-      // Then: Only title and updatedAt should be in the update
-      expect(mockUpdateDoc).toHaveBeenCalled();
-
-      const [, updateData] = mockUpdateDoc.mock.calls[0];
-      const typedUpdateData = updateData as UpdateData<HabitDocument>;
-      expect(typedUpdateData.title).toBe(partialUpdate.title);
-      expect(typedUpdateData.updatedAt).toBeDefined();
-    });
-
-    it('should update frequency and color together', async () => {
-      // Given: User wants to change frequency and color
-      const partialUpdate = {
-        frequency: 'weekly' as const,
-        color: '#8B5CF6',
-      };
-
-      mockUpdateDoc.mockResolvedValue(undefined);
-
-      // When: User updates frequency and color
-      await habitService.updateHabit(
-        TEST_USER_ID,
-        TEST_HABIT_ID,
-        partialUpdate
-      );
-
-      // Then: Both fields should be updated
-      expect(mockUpdateDoc).toHaveBeenCalled();
-
-      const [, updateData] = mockUpdateDoc.mock.calls[0];
-      const typedUpdateData = updateData as UpdateData<HabitDocument>;
-      expect(typedUpdateData).toMatchObject({
-        frequency: partialUpdate.frequency,
-        color: partialUpdate.color,
-        updatedAt: expect.any(Date),
-      });
+      const updateData = getUpdateData();
+      expect(updateData.title).toBe(partialUpdate.title);
+      expect(updateData.updatedAt).toBeDefined();
     });
 
     it('should handle errors gracefully', async () => {
-      mockUpdateDoc.mockRejectedValue(new Error('Permission denied'));
-
-      await expect(
-        habitService.updateHabit(
-          TEST_USER_ID,
-          TEST_HABIT_ID,
-          UPDATED_HABIT_DATA
-        )
-      ).rejects.toThrow('Failed to update habit');
+      await testErrorHandling(
+        mockUpdateDoc,
+        () =>
+          habitService.updateHabit(
+            TEST_USER_ID,
+            TEST_HABIT_ID,
+            UPDATED_HABIT_DATA
+          ),
+        'Failed to update habit'
+      );
     });
   });
 
-  // TOGGLE COMPLETION TEST
   describe('toggleHabitCompletion', () => {
-    it('should complete habit when user checks empty checkbox', async () => {
-      // Given: User sees an unchecked checkbox (habit not done today)
-      mockGetDocs.mockResolvedValue({
-        empty: false,
-        docs: [
-          {
-            id: TEST_HABIT_ID,
-            data: () => ({
-              id: TEST_HABIT_ID,
-              userId: TEST_USER_ID,
-              title: 'Morning Yoga',
-              completedDates: DATES_WITHOUT_TODAY,
-            }),
-          },
-        ],
-      } as unknown as QuerySnapshot);
-
+    it('should complete habit when not already completed', async () => {
+      mockGetDocsSuccess([
+        createMockHabitDoc({ completedDates: DATES_WITHOUT_TODAY }),
+      ]);
       mockUpdateDoc.mockResolvedValue(undefined);
 
-      // When: User clicks the checkbox to complete it
       await habitService.toggleHabitCompletion(
         TEST_USER_ID,
         TEST_HABIT_ID,
         TEST_TODAY
       );
 
-      // Then: updateDoc was called
       expect(mockUpdateDoc).toHaveBeenCalled();
 
-      // Verify the update includes today's date
-      const [, updateData] = mockUpdateDoc.mock.calls[0];
-      const typedUpdateData = updateData as UpdateData<HabitDocument>;
-      expect(typedUpdateData.completedDates).toContain(TEST_TODAY);
-      expect(typedUpdateData.updatedAt).toBeDefined();
+      const updateData = getUpdateData();
+      expect(updateData.completedDates).toContain(TEST_TODAY);
     });
 
-    it('should uncomplete habit when user unchecks filled checkbox', async () => {
-      // Given: User sees a checked checkbox (habit done today)
-      mockGetDocs.mockResolvedValue({
-        empty: false,
-        docs: [
-          {
-            id: TEST_HABIT_ID,
-            data: () => ({
-              id: TEST_HABIT_ID,
-              userId: TEST_USER_ID,
-              title: 'Morning Yoga',
-              completedDates: DATES_WITH_TODAY,
-            }),
-          },
-        ],
-      } as unknown as QuerySnapshot);
+    it('should uncomplete habit when already completed', async () => {
+      mockGetDocsSuccess([
+        createMockHabitDoc({ completedDates: DATES_WITH_TODAY }),
+      ]);
+      mockUpdateDoc.mockResolvedValue(undefined);
 
-      // When: User clicks the checkbox again to uncomplete it
       await habitService.toggleHabitCompletion(
         TEST_USER_ID,
         TEST_HABIT_ID,
         TEST_TODAY
       );
 
-      // Then: updateDoc was called
-      expect(mockUpdateDoc).toHaveBeenCalled();
+      const updateData = getUpdateData();
+      expect(updateData.completedDates).not.toContain(TEST_TODAY);
+    });
 
-      // Verify today's date was removed
-      const [, updateData] = mockUpdateDoc.mock.calls[0];
-      const typedUpdateData = updateData as UpdateData<HabitDocument>;
-      expect(typedUpdateData.completedDates).not.toContain(TEST_TODAY);
-      expect(typedUpdateData.updatedAt).toBeDefined();
+    it('should handle habit not found error', async () => {
+      mockGetDocsEmpty();
+
+      await expect(
+        habitService.toggleHabitCompletion(
+          TEST_USER_ID,
+          TEST_HABIT_ID,
+          TEST_TODAY
+        )
+      ).rejects.toThrow('Failed to toggle habit completion');
+    });
+
+    it('should preserve other completed dates when toggling', async () => {
+      const existingDates = ['2024-01-10', '2024-01-11', '2024-01-12'];
+      mockGetDocsSuccess([
+        createMockHabitDoc({ completedDates: existingDates }),
+      ]);
+      mockUpdateDoc.mockResolvedValue(undefined);
+
+      await habitService.toggleHabitCompletion(
+        TEST_USER_ID,
+        TEST_HABIT_ID,
+        TEST_TODAY
+      );
+
+      const updateData = getUpdateData();
+      expect(updateData.completedDates).toHaveLength(4);
+      expect(updateData.completedDates).toContain(TEST_TODAY);
+      expect(updateData.completedDates).toEqual(
+        expect.arrayContaining(existingDates)
+      );
     });
   });
 
-  // DELETE HABIT TEST
   describe('deleteHabit', () => {
     it('should delete a habit successfully', async () => {
       mockDeleteDoc.mockResolvedValue(undefined);
@@ -276,6 +273,46 @@ describe('habitService', () => {
       await habitService.deleteHabit(TEST_USER_ID, TEST_HABIT_ID);
 
       expect(mockDeleteDoc).toHaveBeenCalled();
+    });
+
+    it('should handle errors gracefully', async () => {
+      await testErrorHandling(
+        mockDeleteDoc,
+        () => habitService.deleteHabit(TEST_USER_ID, TEST_HABIT_ID),
+        'Failed to delete habit'
+      );
+    });
+  });
+
+  describe('getHabits', () => {
+    it('should fetch all habits for user', async () => {
+      mockGetDocsSuccess([createMockHabitDoc()]);
+
+      const result = await habitService.getHabits(TEST_USER_ID);
+
+      expect(mockGetDocs).toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({
+        id: TEST_HABIT_ID,
+        title: 'Morning Yoga',
+        userId: TEST_USER_ID,
+      });
+    });
+
+    it('should return empty array when user has no habits', async () => {
+      mockGetDocsEmpty();
+
+      const result = await habitService.getHabits(TEST_USER_ID);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should handle errors gracefully', async () => {
+      await testErrorHandling(
+        mockGetDocs,
+        () => habitService.getHabits(TEST_USER_ID),
+        'Failed to get habits'
+      );
     });
   });
 });

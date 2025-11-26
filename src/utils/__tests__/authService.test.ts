@@ -35,6 +35,7 @@ describe('authService', () => {
     jest.clearAllMocks();
   });
 
+  // TESTS FOR SIGN UP
   describe('signUp', () => {
     it('should create user successfully', async () => {
       // Mock the Firebase function
@@ -100,6 +101,7 @@ describe('authService', () => {
     });
   });
 
+  // TESTS FOR SIGN IN
   describe('signIn', () => {
     it('should sign in user successfully', async () => {
       const signedInUser = {
@@ -165,6 +167,7 @@ describe('authService', () => {
     });
   });
 
+  // TESTS FOR SIGN OUT
   describe('signOut', () => {
     it('should sign out user successfully', async () => {
       (signOut as jest.Mock).mockResolvedValue(undefined);
@@ -191,6 +194,7 @@ describe('authService', () => {
     });
   });
 
+  // TESTS FOR ON AUTH STATE CHANGED
   describe('onAuthStateChanged', () => {
     it('should call callback with user when signed in', () => {
       const mockCallback = jest.fn();
