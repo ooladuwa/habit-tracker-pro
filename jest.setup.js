@@ -63,10 +63,3 @@ jest.mock('@react-navigation/native', () => ({
     params: {},
   }),
 }));
-
-// Silence console warnings during tests (optional)
-global.console = {
-  ...console,
-  warn: jest.fn(),
-  error: jest.fn(),
-};
