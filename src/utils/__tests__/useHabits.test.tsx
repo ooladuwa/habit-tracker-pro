@@ -142,7 +142,7 @@ describe('useHabits', () => {
 
   // TESTS
   /**
-   * Tests that the hook initializes with empty habits and no error
+   * Tests that the hook initializes
    */
   describe('initialization', () => {
     it('should initialize with empty habits', async () => {
