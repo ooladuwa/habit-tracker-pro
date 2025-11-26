@@ -44,9 +44,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(
         err instanceof Error ? err.message : 'An unexpected error occurred'
       );
-      throw err;
-    } finally {
       setLoading(false);
+      throw err;
     }
   };
 
@@ -62,9 +61,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(
         err instanceof Error ? err.message : 'An unexpected error occurred'
       );
-      throw err;
-    } finally {
       setLoading(false);
+      throw err;
     }
   };
 
@@ -80,9 +78,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(
         err instanceof Error ? err.message : 'An unexpected error occurred'
       );
-      throw err;
-    } finally {
       setLoading(false);
+      throw err;
     }
   };
 

@@ -172,6 +172,18 @@ describe('useAuth', () => {
         resolveSignIn = resolve;
       });
 
+      // Store the callback from onAuthStateChanged so we can fire it after sign-in
+      let authStateCallback: ((user: User | null) => void) | null = null;
+      (authService.onAuthStateChanged as jest.Mock).mockImplementation(
+        (callback) => {
+          // Call immediately with null (initial state)
+          callback(null);
+          // Store callback to fire later when sign-in completes
+          authStateCallback = callback;
+          return jest.fn();
+        }
+      );
+
       (authService.signIn as jest.Mock).mockReturnValue(signInPromise);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -183,10 +195,14 @@ describe('useAuth', () => {
       // Should be loading
       expect(result.current.loading).toBe(true);
 
-      // Resolve the promise
+      // Resolve the promise and simulate onAuthStateChanged firing
       await act(async () => {
         resolveSignIn!(TEST_USER);
         await signInPromise;
+        // Simulate Firebase auth state change after successful sign-in
+        if (authStateCallback) {
+          authStateCallback(TEST_USER);
+        }
       });
 
       // Should no longer be loading
