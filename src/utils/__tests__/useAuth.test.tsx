@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { useAuth, AuthProvider } from '../../hooks/useAuth';
 import * as authService from '../../services/authService';
-import { AuthContextType } from '../../types';
+import { AuthContextType, User } from '../../types';
 
 // Mock auth service
 jest.mock('../../services/authService');
@@ -12,9 +12,10 @@ describe('useAuth', () => {
   const TEST_EMAIL = 'test@example.com';
   const TEST_PASSWORD = 'password123';
   const TEST_WRONG_PASSWORD = 'wrongpassword';
-  const TEST_USER = {
+  const TEST_USER: User = {
     uid: 'user-123',
     email: TEST_EMAIL,
+    emailVerified: false,
   };
 
   // SETUP
@@ -166,8 +167,8 @@ describe('useAuth', () => {
     });
 
     it('should show loading state during sign in', async () => {
-      let resolveSignIn: (value: any) => void;
-      const signInPromise = new Promise((resolve) => {
+      let resolveSignIn: (value: User) => void;
+      const signInPromise = new Promise<User>((resolve) => {
         resolveSignIn = resolve;
       });
 
