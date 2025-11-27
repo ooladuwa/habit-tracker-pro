@@ -39,11 +39,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setError(null);
       setLoading(true);
-      await authService.signUp(email, password);
+      const signedUpUser = await authService.signUp(email, password);
+      setUser(signedUpUser);
+      setLoading(false);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'An unexpected error occurred'
-      );
+      const error = err as Error;
+      setError(error.message);
       setLoading(false);
       throw err;
     }
@@ -56,13 +57,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setError(null);
       setLoading(true);
-      await authService.signIn(email, password);
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'An unexpected error occurred'
-      );
+      const signedInUser = await authService.signIn(email, password);
+      setUser(signedInUser);
       setLoading(false);
-      throw err;
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
+      setLoading(false);
+      throw error;
     }
   };
 
@@ -74,10 +76,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(null);
       setLoading(true);
       await authService.signOut();
+      setUser(null);
+      setLoading(false);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'An unexpected error occurred'
-      );
+      const error = err as Error;
+      setError(error.message);
       setLoading(false);
       throw err;
     }
