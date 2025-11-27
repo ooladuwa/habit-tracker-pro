@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { authService } from '../services/authService';
+import * as authService from '../services/authService';
 import { User, AuthContextType } from '../types';
 
 // Create context
@@ -39,15 +39,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setError(null);
       setLoading(true);
-      const user = await authService.signUp(email, password);
-      setUser(user);
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'An unexpected error occurred'
-      );
-      throw err;
-    } finally {
+      const signedUpUser = await authService.signUp(email, password);
+      setUser(signedUpUser);
       setLoading(false);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
+      setLoading(false);
+      throw err;
     }
   };
 
@@ -58,15 +57,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setError(null);
       setLoading(true);
-      const user = await authService.signIn(email, password);
-      setUser(user);
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'An unexpected error occurred'
-      );
-      throw err;
-    } finally {
+      const signedInUser = await authService.signIn(email, password);
+      setUser(signedInUser);
       setLoading(false);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
+      setLoading(false);
+      throw error;
     }
   };
 
@@ -79,13 +77,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true);
       await authService.signOut();
       setUser(null);
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : 'An unexpected error occurred'
-      );
-      throw err;
-    } finally {
       setLoading(false);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
+      setLoading(false);
+      throw err;
     }
   };
 
