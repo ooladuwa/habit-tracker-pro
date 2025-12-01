@@ -18,7 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AppStackParamList } from '../types';
 import { useHabits } from '../hooks/useHabits';
 import { trackEvent } from '../utils/analytics';
-import { colors } from '../constants/colors';
+import { colors } from '../constants/theme';
 
 type AddHabitNavigationProp = StackNavigationProp<
   AppStackParamList,

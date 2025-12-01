@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from '../types';
-import { colors } from '../constants/colors';
+import { colors } from '../constants/theme';
 
 type WelcomeScreenNavigationProp = StackNavigationProp<
   AuthStackParamList,

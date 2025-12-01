@@ -25,7 +25,7 @@ export default [
 
   // Jest configuration
   {
-    files: ['**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**/*.{js,jsx,ts,tsx}', 'jest.setup.js', 'jest.setup-before.js'],
+    files: ['**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**/*.{js,jsx,ts,tsx}', 'jest.setup.js'],
     languageOptions: {
       globals: {
         jest: 'readonly',

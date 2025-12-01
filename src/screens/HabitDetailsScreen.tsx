@@ -20,7 +20,8 @@ import {
   formatStreak,
 } from '../utils/streakCalculator';
 import { trackEvent } from '../utils/analytics';
-import { colors } from '../constants/colors';
+import { colors } from '../constants/theme';
+import StreakChart from '../components/StreakChart';
 
 type HabitDetailRouteProp = RouteProp<AppStackParamList, 'HabitDetail'>;
 type HabitDetailNavigationProp = StackNavigationProp<
@@ -172,6 +173,16 @@ const HabitDetailsScreen = () => {
               {rate}%
             </Text>
           </View>
+        </Card.Content>
+      </Card>
+
+      {/* Streak Chart */}
+      <Card style={styles.card} mode="elevated">
+        <Card.Content>
+          <StreakChart
+            completedDates={habit.completedDates}
+            frequency={habit.frequency}
+          />
         </Card.Content>
       </Card>
 
