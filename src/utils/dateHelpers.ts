@@ -36,3 +36,13 @@ export const getPreviousDate = (
     frequency === 'daily' ? subDays(date, 1) : subWeeks(date, 1);
   return formatDateToString(previousDate);
 };
+
+/**
+ * Get date string for a given number of days ago
+ * @param daysAgo - The number of days ago
+ * @returns The date string in YYYY-MM-DD format
+ */
+export const getDateDaysAgo = (daysAgo: number): string => {
+  const date = subDays(new Date(), daysAgo);
+  return formatDateToString(date);
+};

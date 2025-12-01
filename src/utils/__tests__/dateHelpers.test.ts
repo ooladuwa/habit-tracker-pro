@@ -2,6 +2,7 @@ import {
   getTodayString,
   formatDateToString,
   getPreviousDate,
+  getDateDaysAgo,
 } from '../dateHelpers';
 
 describe('dateHelpers', () => {
@@ -71,6 +72,41 @@ describe('dateHelpers', () => {
     it('should handle year boundaries correctly', () => {
       const result = getPreviousDate(TEST_JAN_FIRST, 'daily');
       expect(result).toBe(TEST_DEC_THIRTYONE);
+    });
+  });
+
+  // GET DATE DAYS AGO TEST
+  describe('getDateDaysAgo', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2024-01-15T12:00:00Z'));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('returns today when daysAgo is 0', () => {
+      expect(getDateDaysAgo(0)).toBe('2024-01-15');
+    });
+
+    it('returns correct date N days ago', () => {
+      expect(getDateDaysAgo(7)).toBe('2024-01-08');
+      expect(getDateDaysAgo(30)).toBe('2023-12-16');
+    });
+
+    it('returns correct YYYY-MM-DD format', () => {
+      const result = getDateDaysAgo(5);
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it('handles year boundaries correctly', () => {
+      jest.setSystemTime(new Date('2024-01-05T12:00:00Z'));
+      expect(getDateDaysAgo(10)).toBe('2023-12-26');
+    });
+
+    it('matches getTodayString when daysAgo is 0', () => {
+      expect(getDateDaysAgo(0)).toBe(getTodayString());
     });
   });
 });

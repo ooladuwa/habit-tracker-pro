@@ -7,6 +7,7 @@ A production-ready habit tracking mobile app built with React Native and Firebas
 - **Authentication**: Email/password authentication with Firebase Auth
 - **Real-time Sync**: Real-time habit tracking with Firestore
 - **Streak Tracking**: Automatic streak calculation and progress tracking
+- **Data Visualization**: Interactive charts showing habit completion over time
 - **Analytics**: Firebase Analytics instrumentation for user engagement
 - **Offline Support**: Firestore offline persistence enabled
 - **Comprehensive Testing**: Unit tests with Jest and React Testing Library
@@ -19,6 +20,7 @@ A production-ready habit tracking mobile app built with React Native and Firebas
 - **Backend**: Firebase (Auth, Firestore, Analytics)
 - **Navigation**: React Navigation (Stack Navigator)
 - **UI Library**: React Native Paper
+- **Charts**: React Native Gifted Charts (with react-native-svg)
 - **Testing**: Jest + React Testing Library
 - **Code Quality**: ESLint, Prettier, TypeScript
 
@@ -34,14 +36,14 @@ A production-ready habit tracking mobile app built with React Native and Firebas
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/ooladuwa/habit-tracker-pro.git
-cd habit-tracker-pro
+   git clone https://github.com/ooladuwa/habit-tracker-pro.git
+   cd habit-tracker-pro
 ```
 
 2. Install dependencies:
 
 ```bash
-yarn install
+   yarn install
 ```
 
 3. Set up environment variables:
@@ -99,8 +101,11 @@ yarn android
 ```
 src/
 ├── components/         # Reusable UI components
+│   ├── HabitCard.tsx
+│   └── StreakChart.tsx
 ├── config/             # Firebase configuration
-├── constants/          # App constants (colors, etc.)
+├── constants/          # App constants (theme, colors, spacing, etc.)
+│   └── theme.ts
 ├── hooks/              # Custom React hooks (useAuth, useHabits)
 ├── navigation/         # Navigation configuration
 ├── screens/            # Screen components
