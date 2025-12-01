@@ -1,5 +1,6 @@
 /* eslint-env jest, node */
 /* global global */
+import { jest } from '@jest/globals';
 
 // jest.setup-before.js - Runs BEFORE Jest loads
 jest.mock('expo/src/winter/runtime.native', () => ({}), { virtual: true });
