@@ -10,7 +10,7 @@ interface StreakChartProps {
   frequency: 'daily' | 'weekly';
 }
 
-const StreakChart = ({ completedDates, frequency }: StreakChartProps) => {
+const StreakChart = ({ completedDates }: StreakChartProps) => {
   const [hasError, setHasError] = React.useState(false);
 
   const chartData = React.useMemo(() => {
